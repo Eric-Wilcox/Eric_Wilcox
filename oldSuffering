@@ -1,0 +1,48 @@
+import requests
+from bs4 import BeautifulSoup
+
+# Step 1: Find the product page URL
+product_name = input("Enter the Young Living essential oil product name: ")
+url = f"https://www.youngliving.com/en_US/products/{product_name}"
+
+# Step 2: Get the product page HTML content and parse with BeautifulSoup
+response = requests.get(url)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Step 3: Find the Safety Data Sheet (SDS) link and download the PDF
+sds_link = soup.find("a", {"class": "file-link"}, text="Safety Data Sheet")
+sds_url = sds_link["href"]
+sds_response = requests.get(sds_url)
+with open(f"{product_name}_sds.pdf", "wb") as f:
+    f.write(sds_response.content)
+
+# Step 4: Extract the ingredient list from the SDS PDF and look up health hazard information
+import PyPDF2
+
+pdf_file = open(f"{product_name}_sds.pdf", 'rb')
+pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+
+# Look for the first occurrence of the word "Ingredients"
+for page_num in range(pdf_reader.getNumPages()):
+    page = pdf_reader.getPage(page_num)
+    text = page.extractText()
+    if "Ingredients" in text:
+        ingredients_start = text.find("Ingredients")
+        break
+
+# Extract the list of ingredients
+ingredients_list = []
+for line in text[ingredients_start:].splitlines():
+    line = line.strip()
+    if not line or line[0].islower():
+        # End of the ingredients list
+        break
+    else:
+        # Add the ingredient to the list
+        ingredients_list.append(line)
+
+# Look up health hazard information for each ingredient
+for ingredient in ingredients_list:
+    print(f"Ingredient: {ingredient}")
+    # TODO: Look up health hazard information for this ingredient
+    # You can use a database like the International Cosmetic Ingredient Dictionary and Handbook
