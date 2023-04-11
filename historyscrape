@@ -1,0 +1,35 @@
+import requests
+from bs4 import BeautifulSoup
+
+# Define the URLs of the websites to scrape
+urls = ['https://www.history.com/this-day-in-history', 'https://www.bbc.com/news/on_this_day', 'https://www.reuters.com/news/archive/thisdayinhistory']
+
+# Loop through each URL and scrape the events
+for url in urls:
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    if 'history.com' in url:
+        # Scrape events from History Channel
+        events = soup.select('h2.m-hp-Today__card__title')
+        for event in events:
+            title = event.text.strip()
+            description = event.find_next_sibling('div').text.strip()
+            print(f'{title}\n{description}\n')
+
+    elif 'bbc.com' in url:
+        # Scrape events from BBC
+        events = soup.select('div.scd-date-wrapper')
+        for event in events:
+            date = event.select_one('h3.scd-date-title').text.strip()
+            title = event.select_one('h4.scd-date-title').text.strip()
+            description = event.select_one('div.scd-date-summary').text.strip()
+            print(f'{date} - {title}\n{description}\n')
+
+    elif 'reuters.com' in url:
+        # Scrape events from Reuters
+        events = soup.select('div.story')
+        for event in events:
+            title = event.select_one('h3.story-title').text.strip()
+            description = event.select_one('div.story-content').text.strip()
+            print(f'{title}\n{description}\n')
