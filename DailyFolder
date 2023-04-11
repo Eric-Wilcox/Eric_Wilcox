@@ -1,0 +1,4 @@
+
+cd \Users<Username>\Documents
+md Daily Folder
+net use Z: https://companyname.sharepoint.com/sites/Marketing/Documents"
