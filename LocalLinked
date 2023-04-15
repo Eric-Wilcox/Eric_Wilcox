@@ -1,0 +1,28 @@
+import linkedin_api
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+
+# Replace the placeholders with your actual LinkedIn login credentials
+USERNAME = 'your linkedin username'
+PASSWORD = 'your linkedin password'
+
+# Replace the placeholder with your actual location
+LOCATION = 'New York City, NY'
+
+# Authenticate with the LinkedIn API using your login credentials
+api = linkedin_api.Linkedin(USERNAME, PASSWORD)
+
+# Search for job opportunities on LinkedIn
+jobs = api.search_jobs('python developer')
+
+# Use Geopy to geocode your location into geographic coordinates
+geolocator = Nominatim(user_agent="job-search")
+location = geolocator.geocode(LOCATION)
+my_location = (location.latitude, location.longitude)
+
+# Sort the job opportunities by proximity to your location
+sorted_jobs = sorted(jobs, key=lambda x: geodesic(my_location, (x.company_location.latitude, x.company_location.longitude)).miles)
+
+# Print the sorted job opportunities
+for job in sorted_jobs:
+    print(f"{job.title} at {job.company_name} ({geodesic(my_location, (job.company_location.latitude, job.company_location.longitude)).miles} miles)")
