@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# List of languages
+LANGUAGES=("Spanish" "French" "German")
+
+# Loop through the languages
+for LANG in "${LANGUAGES[@]}"
+do
+    # Fetch the word of the day from an API
+    WORD=$(curl -s "https://api.wordnik.com/v4/words.json/wordOfTheDay?api_key=YOUR_API_KEY&lang=${LANG,,}" | jq -r '.word')
+
+    # Print the word and its language
+    echo "$LANG: $WORD"
+done
